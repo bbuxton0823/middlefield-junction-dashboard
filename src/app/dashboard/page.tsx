@@ -53,12 +53,15 @@ export default function DashboardPage() {
               sensorTypes={selectedSensorTypes}
               timeRange={selectedTimeRange}
             />
-            
-            <AnalysisPanel
-              sensorTypes={selectedSensorTypes}
-              timeRange={selectedTimeRange}
-            />
           </div>
+        </div>
+
+        {/* AI Analysis Panel - Full width */}
+        <div className="mb-6">
+          <AnalysisPanel
+            sensorTypes={selectedSensorTypes}
+            timeRange={selectedTimeRange}
+          />
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
