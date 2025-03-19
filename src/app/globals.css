@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 250, 250, 250;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-rgb: 10, 10, 10;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: rgb(var(--background-rgb));
+}
+
+@layer components {
+  .sensor-icon {
+    @apply h-8 w-8 rounded-full shadow-md p-1;
+  }
+  
+  .sensor-icon-streetlight {
+    @apply bg-streetlight text-black;
+  }
+  
+  .sensor-icon-pedestrian {
+    @apply bg-pedestrian text-white;
+  }
+  
+  .sensor-icon-traffic {
+    @apply bg-traffic text-white;
+  }
+  
+  .sensor-icon-environmental {
+    @apply bg-environmental text-white;
+  }
+  
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-smart p-4;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-medium py-2 px-4 rounded-lg transition-colors;
+  }
+  
+  .input {
+    @apply border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white;
+  }
+} 

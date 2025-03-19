@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -11,7 +11,11 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node --compiler-options {\\\"module\\\":\\\"CommonJS\\\"} prisma/seed.ts",
-    "db:reset": "prisma migrate reset --force && prisma db push && npm run prisma:seed"
+    "db:reset": "prisma migrate reset --force && prisma db push && npm run prisma:seed",
+    "start-with-db": "docker-compose up -d postgres && npm run dev",
+    "docker:dev": "docker-compose up",
+    "docker:build": "docker build -t middlefield-dashboard .",
+    "setup": "./setup.sh"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -33,6 +37,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
+    "@svgr/webpack": "^8.1.0",
     "@types/mapbox-gl": "^2.7.19",
     "@types/node": "^20.11.25",
     "@types/react": "^18.2.64",
