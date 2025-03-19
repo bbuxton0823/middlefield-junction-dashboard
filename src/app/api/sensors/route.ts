@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     
     // Get all sensors of specified types, or all sensors if no types specified
     const sensors = await prisma.sensor.findMany({
-      ...filter,
+      ...(types.length > 0 ? { where: { type: { in: types } } } : {}),
       orderBy: {
         name: 'asc',
       },
@@ -87,4 +87,75 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
+
+// PLACEHOLDER: For updating sensor status or properties
+// export async function PATCH(request: NextRequest) {
+//   try {
+//     const searchParams = request.nextUrl.searchParams;
+//     const sensorId = searchParams.get('id');
+//     
+//     if (!sensorId) {
+//       return NextResponse.json(
+//         { error: 'Sensor ID is required' },
+//         { status: 400 }
+//       );
+//     }
+//     
+//     const data = await request.json();
+//     
+//     // TODO: Add authentication check for admin/authorized role
+//     
+//     // Update the sensor
+//     const sensor = await prisma.sensor.update({
+//       where: {
+//         id: sensorId,
+//       },
+//       data: {
+//         status: data.status,
+//         description: data.description,
+//         // Add other updatable fields as needed
+//       }
+//     });
+//     
+//     return NextResponse.json(sensor);
+//   } catch (error) {
+//     console.error('Error updating sensor:', error);
+//     return NextResponse.json(
+//       { error: 'Failed to update sensor' },
+//       { status: 500 }
+//     );
+//   }
+// }
+// 
+// // PLACEHOLDER: For deleting sensors (admin only)
+// export async function DELETE(request: NextRequest) {
+//   try {
+//     const searchParams = request.nextUrl.searchParams;
+//     const sensorId = searchParams.get('id');
+//     
+//     if (!sensorId) {
+//       return NextResponse.json(
+//         { error: 'Sensor ID is required' },
+//         { status: 400 }
+//       );
+//     }
+//     
+//     // TODO: Add authentication check for admin role
+//     
+//     // Delete the sensor
+//     await prisma.sensor.delete({
+//       where: {
+//         id: sensorId,
+//       }
+//     });
+//     
+//     return NextResponse.json({ success: true });
+//   } catch (error) {
+//     console.error('Error deleting sensor:', error);
+//     return NextResponse.json(
+//       { error: 'Failed to delete sensor' },
+//       { status: 500 }
+//     );
+//   }
+// } 

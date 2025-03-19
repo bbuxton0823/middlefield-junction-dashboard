@@ -3,35 +3,63 @@
 import { useState, useEffect } from 'react';
 import { TimeRange } from '@/types';
 import { fetcher } from '@/lib/utils';
+import { getMockTimeSeriesData } from '@/lib/mockData';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface TimeSeriesChartProps {
   sensorTypes: string[];
   timeRange: TimeRange;
 }
 
+// Define the API endpoint that will be used in production
+const API_ENDPOINT = '/api/readings/timeseries';
+
+// Toggle this to use mock data or real API
+const USE_MOCK_DATA = true;
+
 export default function TimeSeriesChart({ sensorTypes, timeRange }: TimeSeriesChartProps) {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchChartData() {
       setLoading(true);
+      setError(null);
+      
       try {
-        // In a real implementation, fetch from API
-        // const data = await fetcher(
-        //   `/api/readings/timeseries?types=${sensorTypes.join(',')}&timeRange=${timeRange}`
-        // );
+        let data;
         
-        // For now, use mock data
-        const mockData = generateMockTimeSeriesData(sensorTypes, timeRange);
+        // Toggle between mock data and real API
+        if (USE_MOCK_DATA) {
+          // Use mock data service
+          data = getMockTimeSeriesData(sensorTypes, timeRange);
+          
+          // Add a small delay to simulate API call
+          await new Promise(resolve => setTimeout(resolve, 800));
+        } else {
+          // In production, fetch from real API
+          const queryParams = new URLSearchParams();
+          queryParams.append('timeRange', timeRange);
+          if (sensorTypes.length > 0) {
+            queryParams.append('types', sensorTypes.join(','));
+          }
+          
+          const url = `${API_ENDPOINT}?${queryParams.toString()}`;
+          data = await fetcher(url);
+        }
         
-        // Simulate API delay
-        setTimeout(() => {
-          setChartData(mockData);
-          setLoading(false);
-        }, 1000);
-      } catch (error) {
-        console.error('Error fetching time series data:', error);
+        // Process and format dates for the chart
+        const formattedData = data.map((item: any) => ({
+          ...item,
+          formattedDate: new Date(item.timestamp).toLocaleDateString()
+        }));
+        
+        setChartData(formattedData);
+      } catch (err) {
+        console.error('Error fetching time series data:', err);
+        setError('Failed to load chart data');
+      } finally {
         setLoading(false);
       }
     }
@@ -47,104 +75,90 @@ export default function TimeSeriesChart({ sensorTypes, timeRange }: TimeSeriesCh
     );
   }
 
-  if (chartData.length === 0) {
+  if (error) {
     return (
       <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">No data available for the selected filters</p>
+        <div className="text-red-500">
+          <p>{error}</p>
+          <button 
+            className="mt-2 px-3 py-1 bg-blue-500 text-white rounded"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="h-96 w-full">
-      <div className="text-center text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-        <h3 className="text-lg font-medium">Chart Placeholder</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          This will be replaced with an interactive time series chart showing sensor data over time
-        </p>
-        <div className="mt-4 bg-white dark:bg-gray-800 p-2 rounded text-left text-sm overflow-auto max-h-64">
-          <pre className="whitespace-pre-wrap">
-            {JSON.stringify({ timeRange, sensorTypes, dataPoints: chartData.length }, null, 2)}
-          </pre>
-        </div>
+  if (chartData.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-gray-700 dark:text-gray-300">No data available for the selected filters</p>
       </div>
-    </div>
-  );
-}
+    );
+  }
+  
+  // Define colors for different sensor types
+  const sensorColors = {
+    ENVIRONMENTAL: '#4CAF50', // Green
+    TRAFFIC: '#F44336',       // Red
+    PEDESTRIAN: '#2196F3',    // Blue
+    STREETLIGHT: '#FFC107'    // Amber
+  };
 
-// Helper function to generate mock time series data
-function generateMockTimeSeriesData(sensorTypes: string[], timeRange: TimeRange) {
-  const dataPoints = [];
-  const now = new Date();
-  let timeIncrement: number;
-  let numPoints: number;
-  
-  // Determine time increment and number of points based on time range
-  switch (timeRange) {
-    case '24h':
-      timeIncrement = 60 * 60 * 1000; // 1 hour
-      numPoints = 24;
-      break;
-    case '7d':
-      timeIncrement = 6 * 60 * 60 * 1000; // 6 hours
-      numPoints = 28;
-      break;
-    case '30d':
-      timeIncrement = 24 * 60 * 60 * 1000; // 1 day
-      numPoints = 30;
-      break;
-    case '1y':
-      timeIncrement = 7 * 24 * 60 * 60 * 1000; // 1 week
-      numPoints = 52;
-      break;
-    default:
-      timeIncrement = 60 * 60 * 1000; // 1 hour
-      numPoints = 24;
-  }
-  
-  // Generate data points
-  for (let i = numPoints - 1; i >= 0; i--) {
-    const timestamp = new Date(now.getTime() - (i * timeIncrement));
-    const point: any = {
-      timestamp,
-      formattedTime: timestamp.toLocaleString(),
-    };
-    
-    // Add value for each sensor type
-    sensorTypes.forEach(type => {
-      switch (type) {
-        case 'STREETLIGHT':
-          // Light level varies by time of day
-          const hour = timestamp.getHours();
-          const isDayTime = hour >= 7 && hour <= 18;
-          point[type] = isDayTime ? 
-            Math.floor(Math.random() * 10000) + 20000 : // Day
-            Math.floor(Math.random() * 10); // Night
-          break;
-        case 'PEDESTRIAN':
-          // Pedestrians follow daily patterns
-          point[type] = Math.floor(Math.random() * 40) + 
-            (hour >= 8 && hour <= 18 ? 40 : 10); // More during day
-          break;
-        case 'TRAFFIC':
-          // Traffic peaks at rush hours
-          let baseTraffic = 30;
-          if ((hour >= 7 && hour <= 9) || (hour >= 16 && hour <= 18)) {
-            baseTraffic = 100; // Rush hour
-          }
-          point[type] = Math.floor(Math.random() * 30) + baseTraffic;
-          break;
-        case 'ENVIRONMENTAL':
-          // Air quality (PM2.5)
-          point[type] = Math.floor(Math.random() * 15) + 20;
-          break;
-        default:
-          point[type] = Math.floor(Math.random() * 100);
-      }
-    });
-    
-    dataPoints.push(point);
-  }
-  
-  return dataPoints;
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      {chartData.length > 0 ? (
+        <LineChart
+          data={chartData}
+          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+          <XAxis 
+            dataKey="formattedDate" 
+            stroke="#718096"
+            tick={{ fill: '#718096' }}
+          />
+          <YAxis 
+            stroke="#718096"
+            tick={{ fill: '#718096' }}
+          />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+              borderColor: '#e2e8f0',
+              borderRadius: '4px'
+            }} 
+          />
+          <Legend wrapperStyle={{ paddingTop: '10px' }} />
+          
+          {/* Render a line for each selected sensor type */}
+          {sensorTypes.map(type => (
+            <Line
+              key={type}
+              type="monotone"
+              dataKey={type}
+              stroke={sensorColors[type as keyof typeof sensorColors] || '#999'}
+              activeDot={{ r: 8 }}
+              strokeWidth={2}
+              name={type.charAt(0) + type.slice(1).toLowerCase()}
+            />
+          ))}
+        </LineChart>
+      ) : (
+        <div className="text-center text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+          <h3 className="text-lg font-medium">Chart Placeholder</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            This will be replaced with an interactive time series chart showing sensor data over time
+          </p>
+          <div className="mt-4 bg-white dark:bg-gray-800 p-2 rounded text-left text-sm overflow-auto max-h-64">
+            <pre className="whitespace-pre-wrap">
+              {JSON.stringify({ timeRange, sensorTypes, dataPoints: 24 }, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )}
+    </ResponsiveContainer>
+  );
 } 

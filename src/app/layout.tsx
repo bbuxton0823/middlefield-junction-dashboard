@@ -1,11 +1,8 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-import { NextAuthProvider } from '@/lib/auth-provider'
+import React from 'react'
+import { Providers } from '@/components/providers'
 
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Middlefield Junction - Smart City Dashboard',
   description: 'Real-time monitoring and analytics for Middlefield Junction smart city infrastructure',
 }
@@ -17,10 +14,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <NextAuthProvider>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      </head>
+      <body className="font-sans">
+        <Providers>
           {children}
-        </NextAuthProvider>
+        </Providers>
       </body>
     </html>
   )

@@ -114,7 +114,7 @@ export default function AnalysisPanel({ sensorTypes, timeRange }: AnalysisPanelP
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Ask a question about your data..."
-            className="flex-grow px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="flex-grow px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
           <button
             type="submit"
@@ -146,13 +146,13 @@ export default function AnalysisPanel({ sensorTypes, timeRange }: AnalysisPanelP
           <>
             <div>
               <h3 className="font-medium text-gray-900 dark:text-white">Summary</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">{analysis.summary}</p>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">{analysis.summary}</p>
             </div>
             
             {analysis.insights.length > 0 && (
               <div>
                 <h3 className="font-medium text-gray-900 dark:text-white">Key Insights</h3>
-                <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-300">
+                <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300">
                   {analysis.insights.map((insight, index) => (
                     <li key={index}>{insight}</li>
                   ))}
@@ -163,7 +163,7 @@ export default function AnalysisPanel({ sensorTypes, timeRange }: AnalysisPanelP
             {analysis.anomalies?.detected && (
               <div className="bg-yellow-100 dark:bg-yellow-900 p-3 rounded-lg">
                 <h3 className="font-medium text-yellow-800 dark:text-yellow-200">Anomaly Detected</h3>
-                <p className="text-yellow-700 dark:text-yellow-300 text-sm">
+                <p className="text-yellow-800 dark:text-yellow-300 text-sm">
                   {analysis.anomalies.description}
                 </p>
               </div>
@@ -172,21 +172,21 @@ export default function AnalysisPanel({ sensorTypes, timeRange }: AnalysisPanelP
             {analysis.prediction && (
               <div>
                 <h3 className="font-medium text-gray-900 dark:text-white">Prediction</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">{analysis.prediction.description}</p>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">{analysis.prediction.description}</p>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-1">
                   <div 
                     className="bg-blue-600 h-2.5 rounded-full" 
                     style={{ width: `${analysis.prediction.confidence * 100}%` }}
                   ></div>
                 </div>
-                <p className="text-right text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-right text-xs text-gray-700 dark:text-gray-400">
                   Confidence: {Math.round(analysis.prediction.confidence * 100)}%
                 </p>
               </div>
             )}
           </>
         ) : (
-          <p className="text-gray-500 dark:text-gray-400">No analysis available. Please select sensors and time range.</p>
+          <p className="text-gray-700 dark:text-gray-400">No analysis available. Please select sensors and time range.</p>
         )}
       </div>
     </div>
