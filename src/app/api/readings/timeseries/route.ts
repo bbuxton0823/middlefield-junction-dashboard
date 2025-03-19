@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
     
     // Calculate averages and format data for the response
     const timeSeriesData = Object.values(groupedByTime).map(group => {
-      const result = { timestamp: group.timestamp };
+      const result: Record<string, string | number> = { timestamp: group.timestamp };
       
       // Calculate average for each sensor type
       Object.keys(group.values).forEach(sensorType => {
